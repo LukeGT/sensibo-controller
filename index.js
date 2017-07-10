@@ -12,7 +12,7 @@ const app = express();
 app.use(body_parser.json());
 
 const request = (method, url, options) => {
-  return promise_retry({minTimeout: 5}, (retry, number) => {
+  return promise_retry({minTimeout: config.retry_timeout}, (retry, number) => {
     if (number > 1) {
       console.log('retrying...', number);
     }
@@ -26,7 +26,7 @@ const patch_pod = (api_key, id, patch) => {
     apiKey: api_key
   };
 
-  return request('get', config.api_root + '/pods/' + id + '/acStates', {qs, json: true})
+  return request('get', config.api_root + '/pods/' + id + '/acStates', {qs, json: true, timeout: config.get_timeout})
 
   .then( (data) => {
     const acState = data.result[0].acState;
