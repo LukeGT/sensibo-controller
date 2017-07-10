@@ -74,4 +74,4 @@ app.patch('/pods/:name/acState', (req, res) => {
   });
 });
 
-app.listen(config.port);
+app.listen(config.port, () => console.log('Server started'));
