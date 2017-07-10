@@ -93,8 +93,8 @@ app.patch('/pods/:name/acState', (req, res) => {
 
   } else {
     promise = Promise.reject({
-      status: 400,
-      reason: 'Invalid name: ' + req.params.name,
+      status: 404,
+      reason: 'Pod not found: ' + req.params.name,
     });
   }
 
