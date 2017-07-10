@@ -26,6 +26,8 @@ const patch_pod = (api_key, id, patch) => {
     apiKey: api_key
   };
 
+  sanitize_patch(patch);
+
   return request('get', config.api_root + '/pods/' + id + '/acStates', {qs, json: true, timeout: config.get_timeout})
 
   .then( (data) => {
@@ -45,12 +47,44 @@ const patch_pod = (api_key, id, patch) => {
   });
 };
 
+const get_id = (name) => {
+
+  for (let word of name.toLowerCase().split(/\s/)) {
+    if (config.names[word]) {
+      return config.names[word];
+    }
+  }
+
+  return null;
+}
+
+const sanitize_patch = (patch) => {
+
+  for (let property in patch) {
+
+    if (typeof(patch[property]) === 'string') {
+      patch[property] = patch[property].toLowerCase();
+    }
+
+    if (!config.valid_values[property]) continue;
+
+    for (let word of patch[property].split(/\s/)) {
+      if (config.valid_values[property].has(word)) {
+        patch[property] = word;
+        break;
+      }
+    }
+  }
+};
+
 app.patch('/pods/:name/acState', (req, res) => {
 
-  const pod_id = config.names[req.params.name];
+  const pod_id = get_id(req.params.name);
   let promise = null;
 
-  if (req.params.name === 'all') {
+  console.log('Got request:', req.path, req.body);
+
+  if (config.all_keywords.has(req.params.name.trim())) {
     const promises = _.values(config.names).map((id) => patch_pod(req.query.apiKey, id, req.body));
     promise = Promise.all(promises);
 
