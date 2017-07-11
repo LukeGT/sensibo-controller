@@ -7,9 +7,6 @@ const _ = require('lodash');
 const config = require('./config');
 
 
-// TODO: For singular queries, use /pods/:id GET to fetch acState faster:
-// https://home.sensibo.com/api/v2/pods/563uhxqj?apiKey=...&fields=acState
-
 // TODO: Determine room name to ID mapping automatically, but allow customisations
 // https://home.sensibo.com/api/v2/users/me/pods?apiKey=...&fields=id,name
 
