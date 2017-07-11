@@ -37,14 +37,17 @@ const request = (method, url, options) => {
 
 const patch_pod = (apiKey, id, patch) => {
 
-  const qs = { apiKey };
+  const qs = {
+    apiKey,
+    fields: 'acState'
+  };
 
   console.log('Fetching pod:', id);
 
-  return request('get', config.api_root + '/pods/' + id + '/acStates', {qs, json: true, timeout: config.get_timeout})
+  return request('get', config.api_root + '/pods/' + id, {qs, json: true, timeout: config.get_timeout})
 
   .then( (data) => {
-    return change_state(apiKey, id, data.result[0].acState, patch);
+    return change_state(apiKey, id, data.result.acState, patch);
   });
 };
 
