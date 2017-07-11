@@ -7,10 +7,6 @@ const _ = require('lodash');
 const config = require('./config');
 
 
-// TODO: Determine room name to ID mapping automatically, but allow customisations
-// https://home.sensibo.com/api/v2/users/me/pods?apiKey=...&fields=id,name
-
-
 const app = express();
 
 app.use(body_parser.json());
@@ -78,15 +74,37 @@ const change_state = (apiKey, id, acState, patch) => {
   return request('post', config.api_root + '/pods/' + id + '/acStates', {qs, body: {acState}, json: true});
 }
 
+const get_names = () => {
+
+  return request('get', config.api_root + '/users/me/pods', {
+    qs: {
+      apiKey: config.api_key,
+      fields: 'id,room',
+    },
+    json: true,
+  })
+
+  .then( (data) => {
+    return _.assign(
+      _.fromPairs(data.result.map( (pod) => [pod.room.name.toLowerCase(), pod.id] )),
+      config.names
+    );
+  });
+}
+
+const pod_names = get_names();
+pod_names.then( (names) => console.log('Got pod names:', names))
+
 const get_id = (name) => {
 
-  for (let word of name.toLowerCase().split(/\s/)) {
-    if (config.names[word]) {
-      return config.names[word];
-    }
-  }
+  return pod_names.then( (names) => {
 
-  return null;
+    for (let word of name.toLowerCase().split(/\s/)) {
+      if (names[word]) return names[word];
+    }
+
+    return null;
+  });
 }
 
 const sanitize_patch = (patch) => {
@@ -112,26 +130,28 @@ app.patch('/pods/:name/acState', (req, res) => {
 
   console.log('Got request:', req.path, req.body);
 
-  const pod_id = get_id(req.params.name);
   const patch = req.body;
-  let promise = null;
-
   sanitize_patch(patch);
 
-  if (config.all_keywords.has(req.params.name.trim())) {
-    promise = patch_all_pods(req.query.apiKey, patch);
+  get_id(req.params.name)
 
-  } else if (pod_id) {
-    promise = patch_pod(req.query.apiKey, pod_id, patch);
+  .then( (pod_id) => {
 
-  } else {
-    promise = Promise.reject({
-      status: 404,
-      reason: 'Pod not found: ' + req.params.name,
-    });
-  }
+    if (config.all_keywords.has(req.params.name.trim())) {
+      return patch_all_pods(req.query.apiKey, patch);
 
-  promise.then((data) => {
+    } else if (pod_id) {
+      return patch_pod(req.query.apiKey, pod_id, patch);
+
+    } else {
+      throw {
+        status: 404,
+        reason: 'Pod not found: ' + req.params.name,
+      };
+    }
+  })
+  
+  .then((data) => {
     console.log('Success');
     res.sendStatus(204);
   })
@@ -139,10 +159,10 @@ app.patch('/pods/:name/acState', (req, res) => {
   .catch((error) => {
     if (error.status) {
       console.log('ERROR: Request failed:', error.reason, '\n', req.path, req.query, req.body);
-      res.status(error.status).end();
+      res.sendStatus(error.status);
     } else {
       console.log('ERROR: Request failed:', error, '\n', req.path, req.query, req.body);
-      res.status(500).end();
+      res.sendStatus(500);
     }
   });
 });
