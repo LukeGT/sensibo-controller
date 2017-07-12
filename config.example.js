@@ -13,7 +13,7 @@ this.all_keywords = new Set(['all', 'the']);
 // Valid values for particular AC state settings
 this.valid_values = {
   fanLevel: new Set(['quiet', 'low', 'medium', 'high', 'auto']),
-  mode: new Set(['cool', 'head', 'fan', 'dry', 'auto']),
+  mode: new Set(['cool', 'heat', 'fan', 'dry', 'auto']),
 };
 
 // API settings
