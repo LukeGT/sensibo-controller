@@ -102,15 +102,26 @@ const get_names = () => {
 const pod_names = get_names();
 pod_names.then( (names) => console.log('Got pod names:', names))
 
-const get_ids = (name) => {
+const get_ids = (name_param) => {
+
+  name_param = name_param.trim().toLowerCase().split(/\s+/).join(' ');
 
   return pod_names.then( (names) => {
 
-    for (let word of name.toLowerCase().split(/\s/)) {
-      if (names[word]) return names[word];
+    const ids = new Set();
+
+    for (name in names) {
+      if (name_param.indexOf(name) >= 0) {
+        console.log('Matched name:', name);
+        ids.add(names[name]);
+      }
     }
 
-    return null;
+    if (ids.size) {
+      return Array.from(ids);
+    } else {
+      return null
+    }
   });
 }
 

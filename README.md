@@ -4,9 +4,9 @@ A Sensibo API proxy suitable for IFTTT webhooks. Features:
 
 * A convenient `PATCH` method which allows you to change a subset of an aircon pod's state without first reading its present state. Great for IFTTT webhooks.
 * Refer to your pods by room name
-* Lenient name resolution, suitable for voice input
+* Send commands to all of your pods at once, or a certain subset of your pods
 * Add aliases for your pods, or groups of pods
-* Send commands to all of your pods at once
+* Lenient name resolution, suitable for voice input
 * Retries on top of the Sensibo API to improve reliability
 
 ## Setup
@@ -42,10 +42,12 @@ Supports all properties that the Sensibo API supports. Unfortunately these aren'
 
 ## Name resolution
 
-The API strips `name`s of all whitespace and converts them to lowercase, then maps them to pod ID(s) as follows:
+The API is designed such that free text (such as spoken words) can be supplied in the `name` parameter. The API strips `name`s of all leading/trailing whitespace, reduces all consecutive whitespace characters to a single space, and converts all text to lowercase.
 
-* If the name is in `config.all_keywords`, apply to all pods owned by user
-* Otherwise, split the name on whitespace and try to match each word to a room name. **Room names with multiple words will not work, you should instead add a single word alias for these rooms in `config.names`**.
+* If the entire name is in `config.all_keywords`, apply to all pods owned by user
+* Otherwise, apply the command to all pods whose name appears as a substring of the supplied name
+
+This allows you to refer to 'all' of your pods, a certain pod by name, or multiple pods by name.
 
 ## Config
 
