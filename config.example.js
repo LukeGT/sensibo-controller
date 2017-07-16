@@ -5,7 +5,7 @@ this.names = {
   'living': 'nai7wtfb',
   'master': 'ds78TBo7',
   'spare': 'asc3safJ',
-  'main': ['nai7wtfb',  'ds78TBo7'],
+  'main': ['nai7wtfb', 'ds78TBo7'],
 };
 
 // Names that will perform changes to all your pods
