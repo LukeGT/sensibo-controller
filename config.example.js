@@ -1,10 +1,11 @@
 // Copy as config.js and fill out appropriately
 
-// Custom names for specific pod IDs
+// Custom names for specific pod IDs or groups of IDs
 this.names = {
   'living': 'nai7wtfb',
   'master': 'ds78TBo7',
   'spare': 'asc3safJ',
+  'main': ['nai7wtfb',  'ds78TBo7'],
 };
 
 // Names that will perform changes to all your pods

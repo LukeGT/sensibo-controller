@@ -28,20 +28,27 @@ const request = (method, url, options) => {
   });
 }
 
-const patch_pod = (apiKey, id, patch) => {
+const patch_pods = (apiKey, ids, patch) => {
 
   const qs = {
     apiKey,
     fields: 'acState'
   };
 
-  console.log('Fetching pod:', id);
+  if (typeof ids === 'string') {
+    ids = [ids];
+  }
 
-  return request('get', config.api_root + '/pods/' + id, {qs, json: true, timeout: config.get_timeout})
+  console.log('Fetching pods:', ids);
 
-  .then( (data) => {
-    return change_state(apiKey, id, data.result.acState, patch);
-  });
+  return Promise.all(ids.map( (id) => {
+
+    return request('get', config.api_root + '/pods/' + id, {qs, json: true, timeout: config.get_timeout})
+
+    .then( (data) => {
+      return change_state(apiKey, id, data.result.acState, patch);
+    })
+  }));
 };
 
 const patch_all_pods = (apiKey, patch) => {
@@ -95,7 +102,7 @@ const get_names = () => {
 const pod_names = get_names();
 pod_names.then( (names) => console.log('Got pod names:', names))
 
-const get_id = (name) => {
+const get_ids = (name) => {
 
   return pod_names.then( (names) => {
 
@@ -133,15 +140,15 @@ app.patch('/pods/:name/acState', (req, res) => {
   const patch = req.body;
   sanitize_patch(patch);
 
-  get_id(req.params.name)
+  get_ids(req.params.name)
 
-  .then( (pod_id) => {
+  .then( (pod_ids) => {
 
     if (config.all_keywords.has(req.params.name.trim())) {
       return patch_all_pods(req.query.apiKey, patch);
 
-    } else if (pod_id) {
-      return patch_pod(req.query.apiKey, pod_id, patch);
+    } else if (pod_ids) {
+      return patch_pods(req.query.apiKey, pod_ids, patch);
 
     } else {
       throw {
