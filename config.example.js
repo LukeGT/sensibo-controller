@@ -11,6 +11,36 @@ this.names = {
 // Names that will perform changes to all your pods
 this.all_keywords = new Set(['all', 'the']);
 
+this.measurement_triggers = [
+  {
+    pods: 'all',
+    trigger: {
+      condition: 'enter',
+      bounds: {
+        temperature: { from: 20, to: 23 },
+      },
+    },
+    action: {
+      on: false,
+    },
+  },
+  {
+    pods: 'living',
+    trigger: {
+      condition: 'exit',
+      location: 'home',
+      bounds: {
+        temperature: { from: 18, to: 25 },
+      },
+    },
+    action: {
+      on: true,
+      mode: 'auto',
+      targetTemperature: 22,
+    },
+  },
+];
+
 // Valid values for particular AC state settings
 this.valid_values = {
   fanLevel: new Set(['quiet', 'low', 'medium', 'high', 'auto']),
