@@ -130,12 +130,12 @@ const sanitize_patch = (patch) => {
   for (let property in patch) {
 
     if (typeof(patch[property]) === 'string') {
-      patch[property] = patch[property].toLowerCase();
+      patch[property] = patch[property].trim().toLowerCase();
     }
 
     if (!config.valid_values[property]) continue;
 
-    for (let word of patch[property].split(/\s/)) {
+    for (let word of patch[property].split(/\s+/)) {
       if (config.valid_values[property].has(word)) {
         patch[property] = word;
         break;
