@@ -163,7 +163,7 @@ app.patch('/pods/:name/acState', (req, res) => {
 
     } else {
       throw {
-        status: 404,
+        status: 204,
         reason: 'Pod not found: ' + req.params.name,
       };
     }
